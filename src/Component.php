@@ -17,13 +17,11 @@ class Component
     private $links = array();
 
     /**
-     * Constructor.
-     * 
-     * @param string $framework You can indicate your preference now, or later.
+     * @param string $framework You can indicate your preference now, or later in ``$this->html()``.
      *
      * ```php
      * use BootPress\Pagination\Component as Paginator;
-     * 
+     *
      * $pagination = new Paginator;
      * ```
      */
@@ -36,22 +34,26 @@ class Component
     }
 
     /**
-     * Magic getter of useful information.
+     * Access the following information:
      *
-     * - 'pager' - The current html pager styles.
-     * - 'links' - The current html pagination styles.
-     * - 'offset' - How much to offset the records, starting at 0.
-     * - 'length' - The total number of records to display.  'offset' and 'length' are meant to be compatible with ``array_slice()``.
-     * - 'limit' - A string to add onto the end of your query: ``" LIMIT {$offset}, {$limit}"``.  If there is no limit required then it return an empty string.
-     * - 'last_page' - (bool) Whether or not this is the last page being looked at.
-     * - 'current_page' - (int) The number of the page currently being viewed, starting at 1.
-     * - 'number_pages' - (int) The total number of pages, starting at 1.
-     * - 'previous_url' - A link to the previous page, or null if not applicable.
-     * - 'next_url' - A link to the next page, or null if not applicable.
+     * - '**pager**' - (array) The current HTML pager styles.
+     * - '**links**' - (array) The current HTML pagination styles.
+     * - '**offset**' - (int) How much to offset the records, starting at 0.
+     * - '**length**' - (int) The total number of records to display.
+     *   - '**offset**' and '**length**' are meant to be compatible with ``array_slice()``.
+     * - '**limit**' - (string) A string to add onto the end of your query eg. ``" LIMIT {$offset}, {$limit}"``.
+     *   - If no limit is needed, then this will be an empty string.
+     * - '**last_page**' - (bool) Whether or not this is the last page being looked at.
+     * - '**current_page**' - (int) The current page number being viewed, starting at 1.
+     * - '**number_pages**' - (int) The total number of pages, starting at 1.
+     * - '**previous_url**' - (string|null) The previous page url, if applicable.
+     * - '**next_url**' - (string|null) The next page url, if applicable.
      *
      * @param string $name
      *
      * @return mixed
+     *
+     * @example
      *
      * ```php
      * $records = range(1, 100);
@@ -127,12 +129,14 @@ class Component
 
     /**
      * Check if we need a total count.  There's no sense in querying the database if you don't have to.  Plus, you have to call this anyways to set things up.
-     * 
-     * @param string $page  The url query parameter that pertains to this instance.
+     *
+     * @param string $page  The url query parameter that pertains these records.
      * @param int    $limit How many records to return at a time.
      * @param string $url   The url to use.  The default is the current url.
-     * 
+     *
      * @return bool
+     *
+     * @example
      *
      * ```php
      * if (!$pagination->set()) {
@@ -170,7 +174,7 @@ class Component
 
     /**
      * Let us know how many records we're working with.  Check if ``$this->set()`` already before telling us to save yourself a query.
-     * 
+     *
      * @param int $count
      */
     public function total($count)
@@ -182,9 +186,26 @@ class Component
 
     /**
      * Customize the pagination and pager links. 
-     * 
-     * @param string $type    Either the CSS framework ('**bootpress**', '**zurb_foundation**', '**semantic_ui**', '**materialize**', '**uikit**') you want to use, or what you want to override (the pagination '**links**', or '**pager**' html).
-     * @param array  $options Any overriden values.  Put '{{ value }}' and '{{ url }}' where you want those to go.  If you set anything to null, then only the value will be returned.  Setting ``$this->links`` 'previous', 'next', or 'dots' to null will remove the section entirely.
+     *
+     * @param string $type    Either the CSS framework you want to use ('[**bootstrap**](http://getbootstrap.com/components/#pagination)', '[**zurb_foundation**](http://foundation.zurb.com/docs/components/pagination.html)', '[**semantic_ui**](http://semantic-ui.com/collections/menu.html#pagination)', '[**materialize**](http://materializecss.com/pagination.html)', '[**uikit**](http://getuikit.com/docs/pagination.html)'), or what you want to override (the pagination '**links**', or '**pager**' html).
+     * @param array  $options The values you want to override.  The default (bootstrap) values are:
+     *
+     * - If ``$type == 'links'``
+     *   - '**wrapper**' => ``'<ul class="pagination">{{ value }}</ul>'``,
+     *   - '**link**' => ``'<li><a href="{{ url }}">{{ value }}</a></li>'``,
+     *   - '**active**' => ``'<li class="active"><span>{{ value }}</span></li>'``,
+     *   - '**disabled**' => ``'<li class="disabled"><span>{{ value }}</span></li>'``,
+     *   - '**previous**' => ``'&laquo;'``, // Setting to ``null`` will remove this entirely
+     *   - '**next**' => ``'&raquo;'``, // Setting to ``null`` will remove this entirely
+     *   - '**dots**' => ``'&hellip;'``, // Setting to ``null`` will remove this entirely
+     * - If ``$type == 'pager'``
+     *   - '**wrapper**' => ``'<ul class="pager">{{ value }}</ul>'``,
+     *   - '**previous**' => ``'<li class="previous"><a href="{{ url }}">&laquo; {{ value }}</a></li>'``,
+     *   - '**next**' => ``'<li class="next"><a href="{{ url }}">{{ value }} &raquo;</a></li>'``,
+     *
+     * Put '**{{ value }}**' and '**{{ url }}**' where you want those to go.  If you set anything to ``null``, then only the '**{{ value }}**' will be returned.
+     *
+     * @example
      *
      * ```php
      * $pagination->html('links', array(
@@ -260,14 +281,9 @@ class Component
 
     /**
      * Display pagination links.
-     * 
-     * @param int   $pad    The number of neighboring links you would like to be displayed to the right, and to the left of the currently active link.  We fudge this number at times for there to be a consistent total number of links throughout.
-     * @param array $remove ``$pagination->links`` you don't want.  Removing the:
      *
-     * 'previous' takes away the previous link
-     * 'next' takes away the next link
-     * 'dots' takes away the disabled dots, along with the first and last pages
-     * 
+     * @param int $pad The number of neighboring links you would like to be displayed to the right, and to the left of the currently active link.  We fudge this number at times for there to be a consistent total number of links throughout.
+     *
      * @return string
      */
     public function links($pad = 3)
@@ -324,11 +340,11 @@ class Component
     }
 
     /**
-     * Display pager links.  If you pass $previous and $next arrays, then there is no need to ``$this->set()`` anything.
-     * 
-     * @param string|array $previous A (string) prompt for the previous page, or an ``array('url'=>'', 'title'=>'')`` to pass the values directly.
-     * @param string|array $next     A (string) prompt for the next page, or an ``array('url'=>'', 'title'=>'')`` to pass the values directly.
-     * 
+     * Display pager links.  If you pass **$previous** and **$next** arrays, then there is no need to ``$this->set()`` anything.
+     *
+     * @param string|array $previous A prompt (string) for the previous page, or an ``array('url'=>'', 'title'=>'')`` to pass the values directly.
+     * @param string|array $next     A prompt (string) for the next page, or an ``array('url'=>'', 'title'=>'')`` to pass the values directly.
+     *
      * @return string
      */
     public function pager($previous = 'Previous', $next = 'Next')
