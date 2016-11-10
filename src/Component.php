@@ -41,7 +41,7 @@ class Component
      * - '**offset**' - (int) How much to offset the records, starting at 0.
      * - '**length**' - (int) The total number of records to display.
      *   - '**offset**' and '**length**' are meant to be compatible with ``array_slice()``.
-     * - '**limit**' - (string) A string to add onto the end of your query eg. ``" LIMIT {$offset}, {$limit}"``.
+     * - '**limit**' - (string) A string to add onto the end of your query eg. ``" LIMIT {$offset}, {$length}"``.
      *   - If no limit is needed, then this will be an empty string.
      * - '**last_page**' - (bool) Whether or not this is the last page being looked at.
      * - '**current_page**' - (int) The current page number being viewed, starting at 1.
